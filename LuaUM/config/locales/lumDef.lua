@@ -58,7 +58,7 @@ local Data = {
 
   ----------------------------------------
   -- Quotes and brackets:
-  LuaQuoteText      = "&Quotes/brackets",
+  LuaQuoteText      = "&Q - Quotes/brackets",
     LuaEnquote          = "&Quote text",
       LuaEnquoteQuotes      = "Quotes",
       LuaEnquoteBrackets    = "Brackets",
@@ -68,6 +68,7 @@ local Data = {
       LuaEnquoteSpecials    = "Specials",
       LuaEnquoteReplace     = " Replacing ",
       LuaEnquoteReadMe      = "ReadMe",
+      LuaEnquoteTagging     = "Tagging",
     LuaDequote          = "&Dequote text",
       LuaDequoteSingle      = "Any &single",
       LuaDequoteDouble      = "Any &double",

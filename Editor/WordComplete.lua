@@ -801,14 +801,14 @@ function TMain:SearchTextWords () --> (table)
 
   --logShow({ CurCfg.Slab, Slab }, "Slab")
   local SlabPat = self.Ctrl:asPattern(Slab) -- Подготовка Slab для поиска
-  local BasePat = ("(%s%s+)"):format(SlabPat, self.Ctrl.CharsSet)
-  local StartPat = '^'..BasePat
-  local MatchPat = self.Ctrl.SeparSet..BasePat
+  local MatchPat = ("(%s%s+)"):format(SlabPat, self.Ctrl.CharsSet)
+  local StartPat = '^'..MatchPat
+  local AfterPat = self.Ctrl.SeparSet..MatchPat
   self.Pattern = {
     Slab = SlabPat,
-    Base = BasePat,
-    Start = StartPat,
     Match = MatchPat,
+    Start = StartPat,
+    After = AfterPat,
 
   } --
   --logShow(self.Pattern, "SearchWords Patterns")
@@ -839,12 +839,12 @@ function TMain:SearchTextWords () --> (table)
     end -- MakeWord
 
     if Cfg.PartFind then
-      for w in s:gmatch(BasePat) do MakeWord(w) end
+      for w in s:gmatch(MatchPat) do MakeWord(w) end
 
     else
       local v = s:match(StartPat)
       if v then MakeWord(v) end
-      for w in s:gmatch(MatchPat) do MakeWord(w) end
+      for w in s:gmatch(AfterPat) do MakeWord(w) end
 
     end
 
@@ -856,7 +856,9 @@ function TMain:SearchTextWords () --> (table)
   Link.Line = CurCfg.CurLine
   wCtr = wCtr + MatchLineWords(GetLine(), 0)
   if Limited and wCtr >= wMax then return t end
+
   --logShow(t, "SearchWords")
+  --logShow(Cfg, "SearchWords")
 
   if Cfg.FindKind == "alternate" then
     -- Поиск поочерёдно сверху / снизу.
@@ -872,7 +874,7 @@ function TMain:SearchTextWords () --> (table)
       end
 
       LineD = LineD + 1
-      if LineD < MaxLine and k <= LinesDown then
+      if LineD <= MaxLine and k <= LinesDown then
         wCtr = wCtr + MatchLineWords(GetLine(LineD),  k)
         if wCtr >= wMax then return t end
 
@@ -900,7 +902,7 @@ function TMain:SearchTextWords () --> (table)
     Link.Down = #t + 1
     for k = 1, Cfg.LinesDown do
       Line = Line + 1
-      if Line >= MaxLine then break end
+      if Line > MaxLine then break end
 
       wCtr = wCtr + MatchLineWords(GetLine(Line),  k)
       if Limited and wCtr >= wMax then return t end
@@ -1058,6 +1060,7 @@ function TMain:SharedPart () --> (string)
   local t = self.Words
   local s = t[1]
   if NoCase then s = s:lower() end
+  --logShow(self)
 
   for k = 2, t.n do
     local w = t[k]
@@ -1276,8 +1279,8 @@ function TMain:MakeWordsList () --> (table)
 
 -- 4. Подготовка списка-меню слов.
 
-  CurCfg.Shared = self:SharedPart() -- Общая часть слов
-  --if Word then logShow(CurCfg) end
+  CurCfg.Shared = self:SharedPart() -- Общая часть слов (для ввода по частям)
+  --if CurCfg.Word then logShow(CurCfg) end
 
   return self:MakePopupMenu()
 

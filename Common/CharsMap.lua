@@ -428,7 +428,8 @@ function TMain:MakeProps ()
     MaxHeight = 1 + 1 +
                 self.RowCount +
                 1 +
-                (CharsBlocks and (1 + 2) or 0) +
+                --(CharsBlocks and (1 + 2) or 0) +
+                EdgeRows.Count +
                 0,
 
     Colors = self.Colors,
@@ -1065,7 +1066,7 @@ end ---- MakeProps
 
 function TBlocks:MakeItems () --| (Blocks_Items)
 
-  if self.Items then return end
+  if self.Items then return true end
 
   local Main = self.Main
 
@@ -1157,6 +1158,7 @@ function TMain:ChooseBlock (Data)
   local Blocks = self.Blocks
   Blocks.FilterCol = 2
 
+  --logShow(Blocks, "ChooseBlock", 1)
   Blocks:MakeProps()
   if not Blocks:MakeItems() then return end
   Blocks:InitFilter()
@@ -1268,13 +1270,15 @@ do
 
 function TMain:FindCharInput ()
 
-  local Input = self.Input or ""
+  local Input = makeplain(self.Input or "")
   if Input == "" then return end
 
   if Input:sub(1, 1) ~= "^" then
     Input = ".*"..Input
 
   end
+
+  --logShow(Input, self.Char)
 
   --if Input:sub(-1, -1) ~= "$" then
   --  Input = Input..".*"
@@ -1283,7 +1287,7 @@ function TMain:FindCharInput ()
 
   --logShow(self, Input)
   --return u8byte(Input:sub(1, 1)) -- TEMP
-  return uFindCode(makeplain(Input), self.Char + 1)
+  return uFindCode(Input, self.Char + 1)
 
 end ---- FindCharInput
 
@@ -1321,6 +1325,8 @@ function TMain:StopCharInput (Data)
 end ---- StopCharInput
 
 function TMain:GotoCharInput (Data)
+
+  --logShow(Data, 'GotoCharInput')
 
   self.Char = self:FindCharInput() or Data.Char
 
@@ -1549,7 +1555,8 @@ function TMain:AssignEvents () --> (bool | nil)
       return { Kind = "CtrlEnter", }, CloseFlag
 
     elseif SKey == "CtrlB" then
-      if not CharsBlocks then return end
+      --logShow(Input, SKey)
+      --if not CharsBlocks then return end
 
       local Char = self:ChooseBlock(Data)
       if type(Char) == 'number' then
